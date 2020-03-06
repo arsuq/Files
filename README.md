@@ -39,7 +39,7 @@ files -p ext -ni -sp *.png -ext jpg
 
     not interactive (-ni)
     out-file (-out)
-    files [separated by comma] (-files)
+    paths map file  [separated by new line] (-files)
     add a new line before each file content (-fsep)
 
 ### fcopy

@@ -8,7 +8,7 @@ namespace Utils.Files
 	{
 		public string Name => "concat";
 		public string Info => "Concatenates text files." + Environment.NewLine +
-			"Args: not interactive (-ni), out-file (-out), files [separated by comma] (-files) " +
+			"Args: not interactive (-ni), out-file (-out), paths map file [separated by new line] (-files) " +
 			"new-line-separator (-fsep)";
 
 		public int Run(RunArgs ra)
@@ -16,13 +16,13 @@ namespace Utils.Files
 			bool interactive = !ra.InArgs.ContainsKey("-ni");
 			var allText = string.Empty;
 			var outFile = string.Empty;
-			var toBeJoined = string.Empty;
+			var fileMap = string.Empty;
 			var newLinefileSep = false;
 
 			if (interactive)
 			{
 				Utils.ReadString("Out file path: ", ref outFile, true);
-				Utils.ReadString("The file paths separated by comma: ", ref toBeJoined, true);
+				Utils.ReadString("The file paths map: ", ref fileMap, true);
 
 				var newLine = string.Empty;
 				Utils.ReadString("Add new line before each file? (y/*):  ", ref newLine);
@@ -33,14 +33,14 @@ namespace Utils.Files
 				if (ra.InArgs.ContainsKey("-out")) outFile = ra.InArgs.GetFirstValue("-out");
 				else throw new ArgumentNullException("-out");
 
-				if (ra.InArgs.ContainsKey("-files")) toBeJoined = ra.InArgs.GetFirstValue("-files");
+				if (ra.InArgs.ContainsKey("-files")) fileMap = ra.InArgs.GetFirstValue("-files");
 				else throw new ArgumentNullException("-files");
 
 				if (ra.InArgs.ContainsKey("-fsep")) newLinefileSep = true;
 			}
 
 			var sb = new StringBuilder();
-			var F = toBeJoined.Split(FILE_SPLITTER);
+			var F = File.ReadAllLines(fileMap);
 			var counter = 0;
 
 
