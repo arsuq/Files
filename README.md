@@ -60,19 +60,6 @@ files -p ext -ni -sp *.png -ext jpg
     map file (-tf)
     quiet (do not report missing) (-q)
 
-### flip
-   Flips images from a map file or the current dir and saves the results in
-   destination dir.
-   Args: 
-     
-    not interactive (-ni)
-    map file [text file with paths on each line] (-map) 
-    out-dir (-out)
-    mode (-mode) {h,v,hv,r90} [horizontal, vertical, both, 90deg right]
-    search pattern [*.jpg] (-sp)
-    result file prefix [opt] (-prf)
-    suffix [opt] (-sfx)
-
 ### duplicates
    Detects file duplicates in one or more folders by comparing sizes, names or data hashes.
    There are extension and size filters as well as option for partial hashing
@@ -168,6 +155,15 @@ files -p ext -ni -sp *.png -ext jpg
    Args: 
  
    not interactive (-ni), text file (-tf)
+
+### lsort
+   Sorts the lines in a text file in ascending or descending order. This will
+   override the original file!
+   Args: 
+
+    not interactive (-ni)
+    text file (-tf) 
+    descending order [by default is asc] (-desc)
 
 ### move
    Moves the matching files to DestinationDir/Prefix + Counter. Can be used as
