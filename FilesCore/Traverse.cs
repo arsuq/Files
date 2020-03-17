@@ -11,7 +11,7 @@ namespace Utils.Files
 			"Traverses all sub-folders of a given root and launches a process with the provided args. If specified replaces a template string" +
 			"in the args with the current folder full path or name." + Environment.NewLine +
 			"Args: root (-root), program to call (-proc), program args (-pargs) Put in quotes and add a single space before the pargs string. " +
-			"current dir full path as arg name (-cdf),  current dir as arg (-cd)" + Environment.NewLine +
+			"current dir full path as arg name (-cdf),  current dir as arg (-cd), recursive (-rec)" + Environment.NewLine +
 			"Example: files -p traverse -ni -cdf $$ -cd $ -root <path> -proc <files> -pargs \" -p move -ni -zpad 3 -src $$ -dest $$ -prf $-\"";
 
 
@@ -23,6 +23,7 @@ namespace Utils.Files
 			string progArgs = null;
 			string cdf = null;
 			string cd = null;
+			bool recursive = false;
 
 			if (interactive)
 			{
@@ -30,6 +31,8 @@ namespace Utils.Files
 				Utils.ReadString("Source dir (current): ", ref src);
 				root = !string.IsNullOrEmpty(src) ? new DirectoryInfo(src) : ra.RootDir;
 				Utils.ReadString("Program to run for each dir: ", ref prog, true);
+				recursive = Utils.ReadWord("Recursive dir traversal? (y/*):", "y");
+
 				Utils.ReadString("Program arguments: ", ref progArgs, true);
 				Utils.ReadString("Argument string to be replaced by the full current dir path: ", ref cdf);
 				Utils.ReadString("Argument string to be replaced by the current dir name: ", ref cd);
@@ -41,9 +44,10 @@ namespace Utils.Files
 				progArgs = ra.InArgs.GetFirstValue("-pargs");
 				if (ra.InArgs.ContainsKey("-cdf")) cdf = ra.InArgs.GetFirstValue("-cdf");
 				if (ra.InArgs.ContainsKey("-cd")) cd = ra.InArgs.GetFirstValue("-cd");
+				if (ra.InArgs.ContainsKey("-rec")) recursive = true;
 			}
 
-			foreach (var dir in root.EnumerateDirectories("*", SearchOption.AllDirectories))
+			foreach (var dir in root.EnumerateDirectories("*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly))
 				try
 				{
 					var pargs = progArgs;
