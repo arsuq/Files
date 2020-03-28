@@ -1,4 +1,4 @@
-# File utilities
+# Files
 
 [![Build status](https://ci.appveyor.com/api/projects/status/xn4k826bcvg3niaj?svg=true)](https://ci.appveyor.com/project/arsuq/files)
 
