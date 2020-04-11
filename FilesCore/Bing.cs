@@ -15,8 +15,10 @@ namespace Utils.Files
 	public class Bing : IUtil
 	{
 		public string Name => "bing";
-		public string Info => "Searches bing for images." + Environment.NewLine +
-			" not interactive (-ni), azure key (-key), search query/file path (-q), count (-count), out file (-out)";
+		public string Info => "Searches bing for images. The query could be a string or a path to an image for reverse search." + Environment.NewLine +
+			" not interactive (-ni), azure key (-key), search query/file path (-q), count (-count), out file (-out)" + Environment.NewLine +
+			" The count doesn't affect the visual search results. They are always under 100. " + Environment.NewLine +
+			" Note that the Azure keys will probably be different for the text and image modes.";
 
 		public int Run(RunArgs ra)
 		{
@@ -50,30 +52,25 @@ namespace Utils.Files
 
 			if (File.Exists(query))
 			{
-				var CropArea = new CropArea(0.1, 0.9, 0.1, 0.9);
+				var CropArea = new CropArea(0.01, 0.99, 0.01, 0.99);
 				var vinfo = new ImageInfo(cropArea: CropArea);
 				var vreq = new VisualSearchRequest(imageInfo: vinfo);
 				var visClient = new VisualSearchClient(new VisualCredentials(azureKey));
+				var f = File.ReadAllBytes(query);
 
-				using (var stream = new FileStream(query, FileMode.Open))
+				using (var ms = new MemoryStream(f))
 				{
-					var R = visClient.Images.VisualSearchMethodAsync(image: stream, knowledgeRequest: vreq).Result;
+					var R = visClient.Images.VisualSearchMethodAsync(image: ms, knowledgeRequest: vreq).Result;
 
-					while (URLs.Count < count)
+					if (R != null)
 					{
-						var URLsCount = URLs.Count;
-						var offset = URLs.Count / PAGE;
+						var A = R.Tags
+							.SelectMany(x => x.Actions.Where(a => a.ActionType == "VisualSearch"))
+							.ToList();
 
-						if (R != null)
-						{
-							var A = R.Tags.SelectMany(x => x.Actions.Where(a => a.ActionType == "VisualSearch")).ToList();
-
-							foreach (ImageModuleAction a in A)
-								foreach (var c in a.Data.Value)
-									URLs.Add(c.ContentUrl);
-
-							if (URLsCount == URLs.Count) break;
-						}
+						foreach (ImageModuleAction a in A)
+							foreach (var c in a.Data.Value)
+								URLs.Add(c.ContentUrl);
 					}
 				}
 			}
@@ -84,7 +81,7 @@ namespace Utils.Files
 				{
 					var URLsCount = URLs.Count;
 					var offset = URLs.Count / PAGE;
-					var R = imgClient.Images.SearchAsync(query: query, count: PAGE, offset: offset).Result;
+					var R = imgClient.Images.SearchAsync(query: query, count: PAGE, offset: offset * PAGE).Result;
 					if (R != null)
 					{
 						var links = R.Value.Select(x => x.ContentUrl);
