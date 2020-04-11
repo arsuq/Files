@@ -7,9 +7,9 @@
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
-    <AssemblyVersion>1.72.0.0</AssemblyVersion>
-    <FileVersion>1.72.0.0</FileVersion>
-    <Version>1.72</Version>
+    <AssemblyVersion>1.8.0.0</AssemblyVersion>
+    <FileVersion>1.8.0.0</FileVersion>
+    <Version>1.8</Version>
     <Authors>Arsuq</Authors>
     <Company>Arsuq</Company>
     <Description>File utils</Description>

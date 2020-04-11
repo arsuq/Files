@@ -15,7 +15,7 @@ namespace Utils.Files
 	public class Bing : IUtil
 	{
 		public string Name => "bing";
-		public string Info => "Searches bing for images. The query could be a string or a path to an image for reverse search." + Environment.NewLine +
+		public string Info => "Searches bing for images. The query could be a string or a path to an image for reverse visual search." + Environment.NewLine +
 			" not interactive (-ni), azure key (-key), search query/file path (-q), count (-count), out file (-out)" + Environment.NewLine +
 			" The count doesn't affect the visual search results. They are always under 100. " + Environment.NewLine +
 			" Note that the Azure keys will probably be different for the text and image modes.";

@@ -21,6 +21,18 @@ All subprograms start in interactive mode, unless the -ni switch is present and 
 ```
 files -p ext -ni -sp *.png -ext jpg
 ```
+### bing
+   Searches bing for images. The query could be a string or a path to an image for
+   reverse visual search.
+   Args:
+
+    not interactive (-ni)
+    azure key (-key)
+    search query/file path (-q)
+    count (-count)
+    out file (-out)
+    The count doesn't affect the visual search results. They are always under 100.
+    Note that the Azure keys will probably be different for the text and image modes.
 
 ### colpick 
    Picks columns by index from a file and copies them into a new file.
