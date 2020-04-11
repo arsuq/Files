@@ -50,21 +50,23 @@ namespace Utils.Files
 
 			if (File.Exists(query))
 			{
-				var CropArea = new CropArea(top: (float)0.0, bottom: (float)1.0, left: (float)0.0, right: (float)1.0);
+				var CropArea = new CropArea(0.1, 0.9, 0.1, 0.9);
 				var vinfo = new ImageInfo(cropArea: CropArea);
 				var vreq = new VisualSearchRequest(imageInfo: vinfo);
 				var visClient = new VisualSearchClient(new VisualCredentials(azureKey));
 
 				using (var stream = new FileStream(query, FileMode.Open))
+				{
+					var R = visClient.Images.VisualSearchMethodAsync(image: stream, knowledgeRequest: vreq).Result;
+
 					while (URLs.Count < count)
 					{
 						var URLsCount = URLs.Count;
 						var offset = URLs.Count / PAGE;
-						var R = visClient.Images.VisualSearchMethodAsync(image: stream, knowledgeRequest: vreq).Result;
 
 						if (R != null)
 						{
-							var A = R.Tags.SelectMany(x => x.Actions.Where(a => a.ActionType == "PagesIncluding")).ToList();
+							var A = R.Tags.SelectMany(x => x.Actions.Where(a => a.ActionType == "VisualSearch")).ToList();
 
 							foreach (ImageModuleAction a in A)
 								foreach (var c in a.Data.Value)
@@ -73,6 +75,7 @@ namespace Utils.Files
 							if (URLsCount == URLs.Count) break;
 						}
 					}
+				}
 			}
 			else
 			{
