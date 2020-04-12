@@ -33,7 +33,7 @@ namespace Utils.Files
 				Utils.ReadString("Azure key: ", ref azureKey, true);
 				Utils.ReadString("Search query: ", ref query, true);
 				Utils.ReadString("Links file: ", ref outFile, true);
-				Utils.ReadInt("Count file: ", ref count, true);
+				Utils.ReadInt("Count: ", ref count, true);
 			}
 			else
 			{
