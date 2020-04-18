@@ -29,10 +29,13 @@ files -p ext -ni -sp *.png -ext jpg
     not interactive (-ni)
     azure key (-key)
     search query/file path (-q)
-    count (-count)
+    count (-count)  Ignored in reverse image search.
     out file (-out)
-    The count doesn't affect the visual search results. They are always under 100.
-    Note that the Azure keys will probably be different for the text and image modes.
+    additional filters (-filters) in the format <key> : <value>, <key2> <value2>. Ignored in reverse image search.
+ 
+
+   > The Azure keys will probably be different for the text and image modes. 
+   > API Ref:  https://docs.microsoft.com/en-us/rest/api/cognitiveservices-bingsearch/bing-images-api-v7-reference
 
 ### colpick 
    Picks columns by index from a file and copies them into a new file.

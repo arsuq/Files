@@ -8,8 +8,8 @@
     <OutputType>Exe</OutputType>
     <StartupObject />
     <AssemblyVersion>1.81.0.0</AssemblyVersion>
-    <FileVersion>1.8.0.0</FileVersion>
-    <Version>1.81</Version>
+    <FileVersion>1.82.0.0</FileVersion>
+    <Version>1.82</Version>
     <Authors>Arsuq</Authors>
     <Company>Arsuq</Company>
     <Description>File utils</Description>
