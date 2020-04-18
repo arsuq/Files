@@ -226,7 +226,7 @@ namespace Utils.Files
 
 				var opt = string.Empty;
 
-				if (Utils.PickOption("Save results? (xml, json, txt/*): ", ref opt, false, "xml", "json", "txt"))
+				if (Utils.PickOption("Save results? (fdelete, xml, json, txt/*): ", ref opt, false, "fdelete", "xml", "json", "txt"))
 				{
 					var fn = string.Empty;
 					var data = string.Empty;
@@ -234,6 +234,17 @@ namespace Utils.Files
 					Utils.ReadString("Result file path: ", ref fn, true);
 
 					if (opt == "txt") data = sb.ToString();
+					else if (opt == "fdelete")
+					{
+						var toDel = new StringBuilder();
+
+						foreach (var kv in hashDict)
+							if (kv.Value.Count > 1)
+								foreach (var f in kv.Value.Select(x => x.FullName).Skip(1))
+									toDel.AppendLine(f);
+
+						data = toDel.ToString();
+					}
 					else
 					{
 						var L = new List<Duplicate>();

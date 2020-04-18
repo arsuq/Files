@@ -126,7 +126,10 @@ namespace Utils.Files
 					FI.Add(new FileInfo(newpath));
 				}
 				ra.State.Files = FI.ToArray();
-				$"Done - {ra.State.Take} files copied.".PrintLine();
+
+				"".PrintLine();
+				var mc = copy ? "copied" : "moved";
+				$"Done - {ra.State.Take} files {mc}.".PrintLine();
 			}
 			else "Aborting take.".PrintLine();
 
