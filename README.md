@@ -76,9 +76,18 @@ files -p ext -ni -sp *.png -ext jpg
     suffix [opt] (-sfx)
 
 ### duplicates
-   Detects file duplicates in one or more folders by comparing sizes, names or data hashes.
-   There are extension and size filters as well as option for partial hashing
+ Detects file duplicates in one or more folders by comparing sizes, names or
+   data hashes.
+   There are extension and size filters as well as an option for partial hashing
    by skip/taking portions of the files.
+   Args: 
+
+    not interactive (-ni)
+    dirs to search into separated by semicolons (-dirs)
+    search pattern (-sp)
+    recursive (-rec)
+    compare with hash (-hash)
+    parallel (-j)
 
 ### ext
    Recursively changes the extensions of all matched files.  
