@@ -15,35 +15,55 @@ namespace Utils.Files
 		public string Name => "duplicates";
 		public string Info =>
 			"Detects file duplicates in one or more folders by comparing sizes, names or data hashes." + Environment.NewLine +
-			"There are extension and size filters as well as an option for partial hashing by skip/taking portions of the files.";
+			"There are extension and size filters as well as an option for partial hashing by skip/taking portions of the files." + Environment.NewLine +
+			"Args: not interactive (-ni), dirs to search into separated by semicolons (-dirs), search pattern (-sp), recursive (-rec), compare with hash (-hash), parallel (-j) ";
 
 		public int Run(RunArgs ra)
 		{
+			bool interactive = !ra.InArgs.ContainsKey("-ni");
+
 			var srcDirs = new List<DirectoryInfo>();
 			var srcs = string.Empty;
 			var skipLessThanSize = 1;
 			var skipMoreThanSize = -1;
 			var ignExt = string.Empty;
 			var iExt = new List<string>();
+			var compHash = false;
+			var recursive = false;
+			var inParallel = 1;
 
-			Utils.ReadString("Enter folders to search into, separated by semicolon: ", ref srcs, true);
-			Utils.ReadString("Search pattern (*.*): ", ref ra.State.SearchPattern);
-			var recursive = !Utils.ReadWord("Recursive search (default is yes)? (n/*): ", "n");
-			Utils.ReadInt($"Skip if size < 1Kb: ", ref skipLessThanSize, false);
-			Utils.ReadInt($"Skip if size > #Kb: ", ref skipMoreThanSize, false);
-			Utils.ReadString("Skip extensions (.xyz): ", ref ignExt, false);
+			ra.State.SearchPattern = "*.*";
+
+			if (interactive)
+			{
+
+				Utils.ReadString("Enter folders to search into, separated by semicolon: ", ref srcs, true);
+				Utils.ReadString("Search pattern (*.*): ", ref ra.State.SearchPattern);
+				recursive = !Utils.ReadWord("Recursive search? (n/*): ", "n");
+				Utils.ReadInt($"Skip if size < 1Kb: ", ref skipLessThanSize, false);
+				Utils.ReadInt($"Skip if size > #Kb: ", ref skipMoreThanSize, false);
+				Utils.ReadString("Skip extensions (.xyz): ", ref ignExt, false);
+				compHash = Utils.ReadWord("Compare file names (default) or MD5 hashes? (h/*): ", "h");
+			}
+			else
+			{
+				if (ra.InArgs.ContainsKey("-dirs")) srcs = ra.InArgs.GetFirstValue("-dirs");
+				else throw new ArgumentNullException("-dirs");
+				if (ra.InArgs.ContainsKey("-sp")) ra.State.SearchPattern = ra.InArgs.GetFirstValue("-sp");
+				if (ra.InArgs.ContainsKey("-rec")) recursive = true;
+				if (ra.InArgs.ContainsKey("-j")) inParallel = int.Parse(ra.InArgs.GetFirstValue("-j"));
+				if (ra.InArgs.ContainsKey("-hash")) compHash = true;
+			}
 
 			if (!string.IsNullOrEmpty(ignExt))
 				foreach (var ext in ignExt.Split(';'))
 					iExt.Add(ext.Trim());
 
-			var compHash = Utils.ReadWord("Compare file names (default) or MD5 hashes? (h/*): ", "h");
-			var inParallel = 1;
 			var useStreamReduction = false;
 			var take = 4000;
 			var skip = 10000;
 
-			if (compHash)
+			if (compHash && interactive)
 			{
 				Utils.ReadInt($"Concurrent readers (1-{Environment.ProcessorCount}): ", ref inParallel);
 				"By default the hash is computed over the whole file.".PrintLine();
@@ -220,13 +240,13 @@ namespace Utils.Files
 
 			if (totalDuplicates > 0)
 			{
-				ra.Trace = Utils.ReadWord("Trace? (y/*): ", "y");
+				ra.Trace = !interactive || Utils.ReadWord("Trace? (y/*): ", "y");
 
 				if (ra.Trace) sb.ToString().PrintLine(ConsoleColor.Yellow);
 
 				var opt = string.Empty;
 
-				if (Utils.PickOption("Save results? (fdelete, xml, json, txt/*): ", ref opt, false, "fdelete", "xml", "json", "txt"))
+				if (interactive && Utils.PickOption("Save results? (fdelete, xml, json, txt/*): ", ref opt, false, "fdelete", "xml", "json", "txt"))
 				{
 					var fn = string.Empty;
 					var data = string.Empty;
