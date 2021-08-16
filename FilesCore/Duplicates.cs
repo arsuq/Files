@@ -16,7 +16,7 @@ namespace Utils.Files
 		public string Info =>
 			"Detects file duplicates in one or more folders by comparing sizes, names or data hashes." + Environment.NewLine +
 			"There are extension and size filters as well as an option for partial hashing by skip/taking portions of the files." + Environment.NewLine +
-			"Args: not interactive (-ni), dirs to search into separated by semicolons (-dirs), search pattern (-sp), recursive (-rec), compare with hash (-hash), parallel (-j) ";
+			"Args: not interactive (-ni), dirs to search into separated by semicolons (-dirs), search pattern (-sp), recursive (-rec), compare with hash (-hash), delete duplicatres (-del), save as [txt, json, xml] (-save), parallel (-j) ";
 
 		public int Run(RunArgs ra)
 		{
@@ -31,6 +31,9 @@ namespace Utils.Files
 			var compHash = false;
 			var recursive = false;
 			var inParallel = 1;
+			var delete = false;
+			var saveas = string.Empty;
+			var saveType = string.Empty;
 
 			ra.State.SearchPattern = "*.*";
 
@@ -53,6 +56,12 @@ namespace Utils.Files
 				if (ra.InArgs.ContainsKey("-rec")) recursive = true;
 				if (ra.InArgs.ContainsKey("-j")) inParallel = int.Parse(ra.InArgs.GetFirstValue("-j"));
 				if (ra.InArgs.ContainsKey("-hash")) compHash = true;
+				if (ra.InArgs.ContainsKey("-del")) delete = true;
+				if (ra.InArgs.ContainsKey("-save"))
+				{
+					saveas = ra.InArgs.GetFirstValue("-save");
+					saveType = Path.GetExtension(saveas).Replace(".","");
+				}
 			}
 
 			if (!string.IsNullOrEmpty(ignExt))
@@ -240,31 +249,37 @@ namespace Utils.Files
 
 			if (totalDuplicates > 0)
 			{
-				ra.Trace = !interactive || Utils.ReadWord("Trace? (y/*): ", "y");
+				ra.Trace = interactive && Utils.ReadWord("Trace? (y/*): ", "y");
 
 				if (ra.Trace) sb.ToString().PrintLine(ConsoleColor.Yellow);
 
-				var opt = string.Empty;
+				// In case of -ni
+				var opt = saveType;
 
-				if (interactive && Utils.PickOption("Save results? (fdelete, xml, json, txt/*): ", ref opt, false, "fdelete", "xml", "json", "txt"))
+				if (delete || (interactive && Utils.PickOption("Save results? (fdelete, xml, json, txt/*): ", ref opt, false, "fdelete", "xml", "json", "txt")))
 				{
 					var fn = string.Empty;
 					var data = string.Empty;
 
-					Utils.ReadString("Result file path: ", ref fn, true);
+					if (interactive) Utils.ReadString("Result file path: ", ref fn, true);
+					else fn = saveas;
 
-					if (opt == "txt") data = sb.ToString();
-					else if (opt == "fdelete")
+					if (opt == "fdelete" || delete)
 					{
 						var toDel = new StringBuilder();
 
 						foreach (var kv in hashDict)
 							if (kv.Value.Count > 1)
 								foreach (var f in kv.Value.Select(x => x.FullName).Skip(1))
+								{
 									toDel.AppendLine(f);
+									if (delete && File.Exists(f)) File.Delete(f);
+								}
 
 						data = toDel.ToString();
 					}
+
+					if (opt == "txt") data = sb.ToString();
 					else
 					{
 						var L = new List<Duplicate>();
@@ -277,7 +292,7 @@ namespace Utils.Files
 						else data = L.ToXml();
 					}
 
-					File.WriteAllText(fn, data);
+					if (!string.IsNullOrEmpty(fn)) File.WriteAllText(fn, data);
 				}
 			}
 
