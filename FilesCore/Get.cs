@@ -107,6 +107,16 @@ namespace Utils.Files
 									fn = Path.Combine(ra.State.DestinationDir, uri.Segments[uri.Segments.Length - 1]);
 								}
 
+								// Check if there is a comma in the line, i.e. if the line is: url, saveas
+								// The dest filepath may include a subdir.
+								if (link.IndexOf(',') > 0)
+								{
+									fn = Path.Combine(ra.State.DestinationDir, link.Split()[1].Trim());
+
+									var fi = new FileInfo(fn);
+									if (!Directory.Exists(fi.Directory.FullName)) Directory.CreateDirectory(fi.Directory.FullName);
+								}
+
 								var bytes = await webClient.GetByteArrayAsync(uri);
 								using (var fs = new FileStream(
 									fn, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, bytes.Length, true))
