@@ -95,27 +95,42 @@ namespace Utils.Files
 							using (var webClient = new HttpClient())
 							{
 								var link = links[idx];
-
-								if (!string.IsNullOrEmpty(baseUrl))
-								{
-									uri = new Uri(string.Format("{0}/{1}", baseUrl, link));
-									fn = Path.Combine(ra.State.DestinationDir, link);
-								}
-								else
-								{
-									uri = new Uri(link);
-									fn = Path.Combine(ra.State.DestinationDir, uri.Segments[uri.Segments.Length - 1]);
-								}
+								var saveas = string.Empty;
 
 								// Check if there is a comma in the line, i.e. if the line is: url, saveas
 								// The dest filepath may include a subdir.
 								if (link.IndexOf(',') > 0)
 								{
-									fn = Path.Combine(ra.State.DestinationDir, link.Split()[1].Trim());
-
-									var fi = new FileInfo(fn);
-									if (!Directory.Exists(fi.Directory.FullName)) Directory.CreateDirectory(fi.Directory.FullName);
+									var P = link.Split(',');
+									link = P[0].Trim();
+									saveas = P[1].Trim();
+									fn = Path.Combine(ra.State.DestinationDir, P[1].Trim());
 								}
+
+								if (!string.IsNullOrEmpty(baseUrl))
+								{
+									uri = new Uri(string.Format("{0}/{1}", baseUrl, link));
+									if (string.IsNullOrEmpty(fn))
+										fn = Path.Combine(ra.State.DestinationDir, link);
+								}
+								else
+								{
+									uri = new Uri(link);
+									if (string.IsNullOrEmpty(fn))
+										fn = Path.Combine(ra.State.DestinationDir, uri.Segments[uri.Segments.Length - 1]);
+								}
+
+								if (link.IndexOf(',') > 0)
+								{
+									var P = link.Split(',');
+									link = P[0].Trim();
+									fn = Path.Combine(ra.State.DestinationDir, P[1].Trim());
+
+								}
+
+								var fi = new FileInfo(fn);
+								if (!Directory.Exists(fi.Directory.FullName)) Directory.CreateDirectory(fi.Directory.FullName);
+
 
 								var bytes = await webClient.GetByteArrayAsync(uri);
 								using (var fs = new FileStream(
